@@ -6,10 +6,10 @@ use App\Models\Brand;
 
 class BrandsController
 {
-    public function create($data)
+    public function create($data, $image)
     {
         $brand = new Brand();
-        $id = $brand->create($data['brand_name']);
+        $id = $brand->create($data['brand_name'], $image);
         http_response_code(201);
         echo json_encode(["message" => "Brand created", "id" => $id]);
     }
@@ -27,10 +27,10 @@ class BrandsController
         }
     }
 
-    public function update($id, $data)
+    public function update($id, $data, $image)
     {
         $brand = new Brand();
-        $success = $brand->update($id, $data['brand_name']);
+        $success = $brand->update($id, $data['brand_name'], $image);
         if ($success) {
             http_response_code(200);
             echo json_encode(["message" => "Brand updated"]);
