@@ -60,4 +60,36 @@ class PantsController
         http_response_code(200);
         echo json_encode($results);
     }
+
+    public function getTopSellingProducts()
+    {
+        $pant = new Pant();
+        $results = $pant->getTopSellingProducts();
+        http_response_code(200);
+        echo json_encode($results);
+    }
+
+    public function getTopSellingBrands()
+    {
+        $pant = new Pant();
+        $results = $pant->getTopSellingBrands();
+        http_response_code(200);
+        echo json_encode($results);
+    }
+
+    public function getTotalRevenueByProduct()
+    {
+        $pant = new Pant();
+        $results = $pant->getTotalRevenueByProduct();
+        http_response_code(200);
+        echo json_encode($results);
+    }
+
+    public function getTotalRevenueByBrand()
+    {
+        $pant = new Pant();
+        $results = $pant->getTotalRevenueByBrand();
+        http_response_code(200);
+        echo json_encode($results);
+    }
 }

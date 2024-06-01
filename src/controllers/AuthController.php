@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Models\User;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 
 class AuthController
 {
@@ -19,7 +18,7 @@ class AuthController
             return;
         }
 
-        $user->create($data['name'], $data['email'], $data['password']);
+        $user->create($data['username'], $data['email'], $data['password']);
         http_response_code(201);
         echo json_encode(["message" => "User created successfully"]);
     }
@@ -29,7 +28,7 @@ class AuthController
         $user = new User();
         $userExists = $user->findByEmail($data['email']);
 
-        if (!$userExists || !password_verify($data['password'], $userExists['password'])) {
+        if (!$userExists || !password_verify($data['password'], $userExists['password_hash'])) {
             http_response_code(401);
             echo json_encode(["message" => "Invalid credentials"]);
             return;
@@ -42,8 +41,8 @@ class AuthController
         $payload = [
             'iat' => $issuedAt,
             'exp' => $expirationTime,
-            'sub' => $userExists['id'], 
-            'name' => $userExists['name'],
+            'sub' => $userExists['user_id'], 
+            'username' => $userExists['username'],
             'email' => $userExists['email']
         ];
 
