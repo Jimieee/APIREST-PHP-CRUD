@@ -11,10 +11,17 @@ class AuthController
     {
         $user = new User();
         $userExists = $user->findByEmail($data['email']);
+        $usernameExists = $user->findByUsername($data['username']);
 
         if ($userExists) {
-            http_response_code(400);
-            echo json_encode(["message" => "User already exists"]);
+            http_response_code(401);
+            echo json_encode(["message" => "Email en uso"]);
+            return;
+        }
+
+        if ($usernameExists) {
+            http_response_code(401);
+            echo json_encode(["message" => "El nombre de usuario ya está en uso"]);
             return;
         }
 
@@ -28,9 +35,9 @@ class AuthController
         $user = new User();
         $userExists = $user->findByEmail($data['email']);
 
-        if (!$userExists || !password_verify($data['password'], $userExists['password_hash'])) {
+        if (!$userExists || !password_verify($data['password'], $userExists['password'])) {
             http_response_code(401);
-            echo json_encode(["message" => "Invalid credentials"]);
+            echo json_encode(["message" => "Credenciales incorrectas"]);
             return;
         }
 
@@ -41,9 +48,11 @@ class AuthController
         $payload = [
             'iat' => $issuedAt,
             'exp' => $expirationTime,
-            'sub' => $userExists['user_id'], 
-            'username' => $userExists['username'],
-            'email' => $userExists['email']
+            'UserData' => [
+                'id' => $userExists['user_id'],
+                'username' => $userExists['username'],
+                'email' => $userExists['email']
+            ],
         ];
 
         $jwt = JWT::encode($payload, $secretKey, 'HS256');
