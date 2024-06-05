@@ -1,142 +1,72 @@
-    <?php
+<?php
 
-    use App\Controllers\AuthController;
-    use App\Controllers\PantsController;
-    use App\Middleware\AuthMiddleware;
-    use App\Controllers\BrandsController;
-    use App\Controllers\SizesController;
+use App\Controllers\AuthController;
+use App\Controllers\BrandsController;
+use App\Controllers\PantsController;
+use App\Controllers\SizesController;
+use App\Middleware\AuthMiddleware;
+use FastRoute\RouteCollector;
 
-    $authMiddleware = new AuthMiddleware();
-    $authController = new AuthController();
-    $pantsController = new PantsController();
-    $brandController = new BrandsController();
-    $sizeController = new SizesController();
+$authMiddleware = new AuthMiddleware();
+$authController = new AuthController();
+$pantsController = new PantsController();
+$brandController = new BrandsController();
+$sizeController = new SizesController();
 
-    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $method = $_SERVER['REQUEST_METHOD'];
+$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($authController, $pantsController, $brandController, $sizeController) {
+    $r->addRoute('POST', '/register', [$authController, 'register']);
+    $r->addRoute('POST', '/login', [$authController, 'login']);
 
-    function handleRequest($controllerMethod, $requireAuth = false)
-    {
-        global $authMiddleware;
+    $r->addGroup('/pants', function (RouteCollector $r) use ($pantsController) {
+        $r->addRoute('POST', '', [$pantsController, 'create']);
+        $r->addRoute('GET', '', [$pantsController, 'getAll']);
+        $r->addRoute('GET', '/{id:\d+}', [$pantsController, 'read']);
+        $r->addRoute('PUT', '/{id:\d+}', [$pantsController, 'update']);
+        $r->addRoute('DELETE', '/{id:\d+}', [$pantsController, 'delete']);
+    });
 
-        $request = [];
-        if ($requireAuth) {
-            $result = $authMiddleware->handle($request, function ($req) use ($controllerMethod) {
-                return $controllerMethod($req);
-            });
-        } else {
-            $result = $controllerMethod($request);
-        }
-        return $result;
-    }
+    $r->addGroup('/brands', function (RouteCollector $r) use ($brandController) {
+        $r->addRoute('POST', '', [$brandController, 'create']);
+        $r->addRoute('GET', '', [$brandController, 'getAll']);
+        $r->addRoute('GET', '/{id:\d+}', [$brandController, 'read']);
+        $r->addRoute('PUT', '/{id:\d+}', [$brandController, 'update']);
+        $r->addRoute('DELETE', '/{id:\d+}', [$brandController, 'delete']);
+    });
 
-    if ($uri === '/register' && $method === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $authController->register($data);
-    } elseif ($uri === '/login' && $method === 'POST') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        $authController->login($data);
-        return;
-    }
+    $r->addGroup('/sizes', function (RouteCollector $r) use ($sizeController) {
+        $r->addRoute('POST', '', [$sizeController, 'create']);
+        $r->addRoute('GET', '', [$sizeController, 'getAll']);
+        $r->addRoute('GET', '/{id:\d+}', [$sizeController, 'read']);
+        $r->addRoute('PUT', '/{id:\d+}', [$sizeController, 'update']);
+        $r->addRoute('DELETE', '/{id:\d+}', [$sizeController, 'delete']);
+    });
+});
 
-    $notFound = true;
+$httpMethod = $_SERVER['REQUEST_METHOD'];
+$uri = $_SERVER['REQUEST_URI'];
 
-    if ($uri === '/pants') {
-        if ($method === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
-            handleRequest(function ($req) use ($pantsController, $data) {
-                $pantsController->create($data);
-            }, true);
-        } elseif ($method === 'GET') {
-            handleRequest(function ($req) use ($pantsController) {
-                $pantsController->getAll();
-            }, true);
-        } elseif (preg_match('/\/pants\/(\d+)/', $uri, $matches) && $method === 'GET') {
-            $id = (int)$matches[1];
-            handleRequest(function ($req) use ($pantsController, $id) {
-                $pantsController->read($id);
-            }, true);
-        } elseif (preg_match('/\/pants\/(\d+)/', $uri, $matches) && $method === 'PUT') {
-            $id = (int)$matches[1];
-            $data = json_decode(file_get_contents('php://input'), true);
-            handleRequest(function ($req) use ($pantsController, $id, $data) {
-                $pantsController->update($id, $data);
-            }, true);
-        } elseif (preg_match('/\/pants\/(\d+)/', $uri, $matches) && $method === 'DELETE') {
-            $id = (int)$matches[1];
-            handleRequest(function ($req) use ($pantsController, $id) {
-                $pantsController->delete($id);
-            }, true);
-        } else {
-            $notFound = false;
-        }
-    }
+if (false !== $pos = strpos($uri, '?')) {
+    $uri = substr($uri, 0, $pos);
+}
+$uri = rawurldecode($uri);
 
-    if ($uri === '/brands') {
-        if ($method === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $image = $_FILES['image'];
-            handleRequest(function ($req) use ($brandController, $data, $image) {
-                $brandController->create($data, $image);
-            }, true);
-        } elseif ($method === 'GET') {
-            handleRequest(function ($req) use ($brandController) {
-                $brandController->getAll();
-            }, true);
-        } elseif (preg_match('/\/brands\/(\d+)/', $uri, $matches) && $method === 'GET') {
-            $id = (int)$matches[1];
-            handleRequest(function ($req) use ($brandController, $id) {
-                $brandController->read($id);
-            }, true);
-        } elseif (preg_match('/\/brands\/(\d+)/', $uri, $matches) && $method === 'PUT') {
-            $id = (int)$matches[1];
-            $data = json_decode(file_get_contents('php://input'), true);
-            $image = $_FILES['image'];
-            handleRequest(function ($req) use ($brandController, $id, $data, $image) {
-                $brandController->update($id, $data, $image);
-            }, true);
-        } elseif (preg_match('/\/brands\/(\d+)/', $uri, $matches) && $method === 'DELETE') {
-            $id = (int)$matches[1];
-            handleRequest(function ($req) use ($brandController, $id) {
-                $brandController->delete($id);
-            }, true);
-        } else {
-            $notFound = false;
-        }
-    }
+$routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 
-    if ($uri === '/sizes') {
-        if ($method === 'POST') {
-            $data = json_decode(file_get_contents('php://input'), true);
-            handleRequest(function ($req) use ($sizeController, $data) {
-                $sizeController->create($data);
-            }, true);
-        } elseif ($method === 'GET') {
-            handleRequest(function ($req) use ($sizeController) {
-                $sizeController->getAll();
-            }, true);
-        } elseif (preg_match('/\/sizes\/(\d+)/', $uri, $matches) && $method === 'GET') {
-            $id = (int)$matches[1];
-            handleRequest(function ($req) use ($sizeController, $id) {
-                $sizeController->read($id);
-            }, true);
-        } elseif (preg_match('/\/sizes\/(\d+)/', $uri, $matches) && $method === 'PUT') {
-            $id = (int)$matches[1];
-            $data = json_decode(file_get_contents('php://input'), true);
-            handleRequest(function ($req) use ($sizeController, $id, $data) {
-                $sizeController->update($id, $data);
-            }, true);
-        } elseif (preg_match('/\/sizes\/(\d+)/', $uri, $matches) && $method === 'DELETE') {
-            $id = (int)$matches[1];
-            handleRequest(function ($req) use ($sizeController, $id) {
-                $sizeController->delete($id);
-            }, true);
-        } else {
-            $notFound = false;
-        }
-    }
-
-    if ($notFound) {
+switch ($routeInfo[0]) {
+    case FastRoute\Dispatcher::NOT_FOUND:
         http_response_code(404);
         echo json_encode(["message" => "Not Found"]);
-    }
+        break;
+    case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+        $allowedMethods = $routeInfo[1];
+        http_response_code(405);
+        echo json_encode(["message" => "Method Not Allowed. Allowed methods: " . implode(", ", $allowedMethods)]);
+        break;
+    case FastRoute\Dispatcher::FOUND:
+        $handler = $routeInfo[1];
+        $vars = $routeInfo[2];
+        [$controller, $method] = $handler;
+        $data = json_decode(file_get_contents('php://input'), true); 
+        call_user_func_array([$controller, $method], array_merge([$data], $vars)); 
+        break;
+}

@@ -26,7 +26,7 @@ class AuthController
         }
 
         $user->create($data['username'], $data['email'], $data['password']);
-        http_response_code(201);
+        http_response_code(200);
         echo json_encode(["message" => "User created successfully"]);
     }
 
@@ -51,7 +51,8 @@ class AuthController
             'UserData' => [
                 'id' => $userExists['user_id'],
                 'username' => $userExists['username'],
-                'email' => $userExists['email']
+                'email' => $userExists['email'],
+                'role' => $userExists['role_id']
             ],
         ];
 
