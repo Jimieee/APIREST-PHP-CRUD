@@ -15,14 +15,14 @@ class User
         $this->pdo = $db->connect();
     }
 
-    public function create($username, $email, $password) {
+    public function create($username, $email, $password, $role_id = 1) {
         $sql = "INSERT INTO users (username, email, password, role_id) VALUES (:username, :email, :password, :role_id)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             'username' => $username,
             'email' => $email,
             'password' => password_hash($password, PASSWORD_BCRYPT),
-            'role_id' => 1
+            'role_id' => $role_id
         ]);
     }
 

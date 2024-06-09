@@ -9,7 +9,7 @@ class UsersController
     public function create($data)
     {
         $user = new User();
-        $user->create($data['username'], $data['email'], $data['password']);
+        $user->create($data['username'], $data['email'], $data['password'], $data['role_id']);
         http_response_code(201);
         echo json_encode(["message" => "User created"]);
     }

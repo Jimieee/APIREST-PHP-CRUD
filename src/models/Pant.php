@@ -83,10 +83,10 @@ class Pant
 
     public function update($id, $data)
     {
-        $sql = "UPDATE pants SET name = :name, price = :price, brand_id = :brand_id, size_id = :size_id, stock_quantity = :stock_quantity, is_limited = :is_limited, updated_at = CURRENT_TIMESTAMP WHERE pant_id = :id";
+        $sql = "UPDATE pants SET name = :name, price = :price, brand_id = :brand_id, size_id = :size_id, stock_quantity = :stock_quantity, is_limited = :is_limited, updated_at = CURRENT_TIMESTAMP WHERE pant_id = :pant_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'id' => $id,
+            'pant_id' => $id,
             'name' => $data['name'],
             'price' => $data['price'],
             'brand_id' => $data['brand_id'],

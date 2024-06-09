@@ -84,6 +84,10 @@ switch ($routeInfo[0]) {
 
         $params = array_merge($data, $vars);
 
+        // echo "<pre>";
+        // print_r($params);
+        // echo "</pre>";
+
         call_user_func_array([$controller, $method], [$params]);
         break;
 }
