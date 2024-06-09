@@ -17,6 +17,7 @@ class Pant
 
     public function create($data)
     {
+
         $sql = "INSERT INTO pants (name, price, brand_id, size_id, stock_quantity, is_limited) VALUES (:name, :price, :brand_id, :size_id, :stock_quantity, :is_limited)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
@@ -60,9 +61,9 @@ class Pant
                 JOIN brands b ON p.brand_id = b.brand_id
                 JOIN sizes s ON p.size_id = s.size_id
                 LEFT JOIN pants_images pi ON p.pant_id = pi.pant_id
-                WHERE p.pant_id = :id";
+                WHERE p.pant_id = :pant_id";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $id]);
+        $stmt->execute(['pant_id' => $id]);
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $pants = [];
@@ -70,7 +71,6 @@ class Pant
             $pants[$row['pant_id']] = [
                 'pant_id' => $row['pant_id'],
                 'name' => $row['name'],
-                'description' => $row['description'],
                 'price' => $row['price'],
                 'brand_name' => $row['brand_name'],
                 'size_label' => $row['size_label'],
@@ -134,24 +134,25 @@ class Pant
             JOIN sizes s ON p.size_id = s.size_id
             LEFT JOIN pants_images pi ON p.pant_id = pi.pant_id";
         $stmt = $this->pdo->query($sql);
-        $results = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_ASSOC);
-
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
         $pants = [];
+        $index = 1; 
         foreach ($results as $result) {
-            $pants[$result[0]['pant_id']] = [
-                'pant_id' => $result[0]['pant_id'],
-                'name' => $result[0]['name'],
-                'description' => $result[0]['description'],
-                'price' => $result[0]['price'],
-                'brand_name' => $result[0]['brand_name'],
-                'size_label' => $result[0]['size_label'],
-                'images' => array_column($result, 'image_path')
+            $pants[$index] = [
+                'pant_id' => $result['pant_id'],
+                'name' => $result['name'],
+                'price' => $result['price'],
+                'brand_name' => $result['brand_name'],
+                'size_label' => $result['size_label'],
+                'images' => $result['image_path'] ? [$result['image_path']] : []
             ];
+            $index++;
         }
-
+    
         return array_values($pants);
     }
-
+    
     //get top selling products
     public function getTopSellingProducts($limit = 10)
     {

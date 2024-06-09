@@ -65,8 +65,18 @@ switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::FOUND:
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
+        echo "<pre>";
+        print_r($vars);
+        echo "</pre>";
         [$controller, $method] = $handler;
-        $data = json_decode(file_get_contents('php://input'), true); 
-        call_user_func_array([$controller, $method], array_merge([$data], $vars)); 
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        if (is_null($data)) {
+            $data = [];
+        }
+
+        $params = array_merge($data, $vars);
+
+        call_user_func_array([$controller, $method], [$params]);
         break;
 }

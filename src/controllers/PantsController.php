@@ -16,8 +16,10 @@ class PantsController
 
     public function read($id)
     {
+        $pantId = $id['id'];
+        
         $pant = new Pant();
-        $result = $pant->read($id);
+        $result = $pant->read((int)$pantId);
         if ($result) {
             http_response_code(200);
             echo json_encode($result);
