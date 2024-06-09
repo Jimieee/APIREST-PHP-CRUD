@@ -44,6 +44,7 @@ class PantsController
 
     public function delete($id)
     {
+        $id = $id['id'];
         $pant = new Pant();
         $rowCount = $pant->delete($id);
         if ($rowCount) {

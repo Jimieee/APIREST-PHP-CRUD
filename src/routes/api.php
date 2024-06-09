@@ -4,6 +4,7 @@ use App\Controllers\AuthController;
 use App\Controllers\BrandsController;
 use App\Controllers\PantsController;
 use App\Controllers\SizesController;
+use App\Controllers\UsersController;
 use App\Middleware\AuthMiddleware;
 use FastRoute\RouteCollector;
 
@@ -12,8 +13,9 @@ $authController = new AuthController();
 $pantsController = new PantsController();
 $brandController = new BrandsController();
 $sizeController = new SizesController();
+$userController = new UsersController();
 
-$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($authController, $pantsController, $brandController, $sizeController) {
+$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($authController, $pantsController, $brandController, $sizeController, $userController, $authMiddleware) {
     $r->addRoute('POST', '/register', [$authController, 'register']);
     $r->addRoute('POST', '/login', [$authController, 'login']);
 
@@ -39,6 +41,14 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($auth
         $r->addRoute('GET', '/{id:\d+}', [$sizeController, 'read']);
         $r->addRoute('PUT', '/{id:\d+}', [$sizeController, 'update']);
         $r->addRoute('DELETE', '/{id:\d+}', [$sizeController, 'delete']);
+    });
+
+    $r->addGroup('/users', function (RouteCollector $r) use ($userController) {
+        $r->addRoute('POST', '', [$userController, 'create']);
+        $r->addRoute('GET', '', [$userController, 'getAll']);
+        $r->addRoute('GET', '/{id:\d+}', [$userController, 'read']);
+        $r->addRoute('PUT', '/{id:\d+}', [$userController, 'update']);
+        $r->addRoute('DELETE', '/{id:\d+}', [$userController, 'delete']);
     });
 });
 

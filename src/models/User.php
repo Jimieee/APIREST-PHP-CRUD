@@ -41,4 +41,40 @@ class User
         $stmt->execute(['username' => $username]);
         return $stmt->fetch();
     }
+
+    public function getAllUsers()
+    {
+        $sql = "SELECT * FROM users";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll();
+    }   
+
+    public function read($id)
+    {
+        $sql = "SELECT * FROM users WHERE user_id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch();
+    }
+
+    public function update($id, $data)
+    {
+        $sql = "UPDATE users SET username = :username, email = :email, password = :password WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => password_hash($data['password'], PASSWORD_BCRYPT),
+            'id' => $id
+        ]);
+        return $stmt->rowCount();
+    }
+
+    public function delete($id)
+    {
+        $sql = "DELETE FROM users WHERE id = :id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->rowCount();
+    }
 }
