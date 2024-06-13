@@ -15,8 +15,7 @@ class User
         $this->pdo = $db->connect();
     }
 
-    public function create($username, $email, $password, $role_id = 1)
-    {
+    public function create($username, $email, $password, $role_id = 1) {
         $sql = "INSERT INTO users (username, email, password, role_id) VALUES (:username, :email, :password, :role_id)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
@@ -48,7 +47,7 @@ class User
         $sql = "SELECT * FROM users";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll();
-    }
+    }   
 
     public function read($id)
     {
