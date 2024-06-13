@@ -6,20 +6,36 @@ use App\Models\Cart;
 
 class CartsController
 {
-    public function create($user_id)
+    public function create($data)
     {
         $cart = new Cart();
-        $cart_id = $cart->create($user_id);
+        $cart_id = $cart->create($data['user_id']);
         http_response_code(201);
         echo json_encode(["message" => "Cart created", "cart_id" => $cart_id]);
     }
+    public function getCart($user_id)
+    {
+        $user_id = $user_id['user_id'];
+        $cart = new Cart();
+        $resultado = $cart->getCart($user_id);
+        http_response_code(201);
+        echo json_encode(["message" => "Cart selected", "cart_id" => $resultado]);
+    }
 
-    public function addToCart($cart_id, $pant_id, $quantity)
+    public function addToCart($data)
     {
         $cart = new Cart();
-        $cart->addToCart($cart_id, $pant_id, $quantity);
+        $cart->addToCart($data['cart_id'], $data['pant_id'], $data['quantity']);
         http_response_code(200);
         echo json_encode(["message" => "Item added to cart"]);
+    } 
+
+    public function updateFromCart($data)
+    {
+        $cart = new Cart();
+        $cart->updateFromCart($data['cart_item_id'], $data['quantity']);
+        http_response_code(200);
+        echo json_encode(["message" => "Item Updated from cart"]);
     }
 
     public function removeFromCart($cart_item_id)

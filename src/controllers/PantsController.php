@@ -29,8 +29,9 @@ class PantsController
         }
     }
 
-    public function update($id, $data)
+    public function update($data)
     {
+        $id = $data['id'];
         $pant = new Pant();
         $rowCount = $pant->update($id, $data);
         if ($rowCount) {
@@ -44,6 +45,7 @@ class PantsController
 
     public function delete($id)
     {
+        $id = $id['id'];
         $pant = new Pant();
         $rowCount = $pant->delete($id);
         if ($rowCount) {

@@ -15,19 +15,20 @@ class AuthController
 
         if ($userExists) {
             http_response_code(401);
-            echo json_encode(["message" => "Email en uso"]);
+            echo json_encode(["message" => "Email en uso", "user_id" => $userExists['user_id']]);
             return;
         }
 
         if ($usernameExists) {
             http_response_code(401);
-            echo json_encode(["message" => "El nombre de usuario ya está en uso"]);
+            echo json_encode(["message" => "El nombre de usuario ya está en uso", "user_id" => $userExists['user_id']]);
             return;
         }
 
         $user->create($data['username'], $data['email'], $data['password']);
         http_response_code(200);
-        echo json_encode(["message" => "User created successfully"]);
+        $Idselect = $user->findByEmail($data['email']);
+        echo json_encode(["message" => "User created successfully", "user_id" => $Idselect['user_id']]);
     }
 
     public function login($data)
@@ -61,7 +62,8 @@ class AuthController
         http_response_code(200);
         echo json_encode([
             "message" => "Login successful",
-            "token" => $jwt
+            "token" => $jwt,
+            "user_id" => $userExists['user_id']
         ]);
     }
 }

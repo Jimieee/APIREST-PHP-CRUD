@@ -4,6 +4,8 @@ use App\Controllers\AuthController;
 use App\Controllers\BrandsController;
 use App\Controllers\PantsController;
 use App\Controllers\SizesController;
+use App\Controllers\UsersController;
+use App\Controllers\CartsController;
 use App\Middleware\AuthMiddleware;
 use FastRoute\RouteCollector;
 
@@ -12,8 +14,10 @@ $authController = new AuthController();
 $pantsController = new PantsController();
 $brandController = new BrandsController();
 $sizeController = new SizesController();
+$userController = new UsersController();
+$cartController = new CartsController();
 
-$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($authController, $pantsController, $brandController, $sizeController) {
+$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($authController, $pantsController, $cartController, $brandController, $sizeController, $userController, $authMiddleware) {
     $r->addRoute('POST', '/register', [$authController, 'register']);
     $r->addRoute('POST', '/login', [$authController, 'login']);
 
@@ -40,6 +44,24 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($auth
         $r->addRoute('PUT', '/{id:\d+}', [$sizeController, 'update']);
         $r->addRoute('DELETE', '/{id:\d+}', [$sizeController, 'delete']);
     });
+
+    $r->addGroup('/users', function (RouteCollector $r) use ($userController) {
+        $r->addRoute('POST', '', [$userController, 'create']);
+        $r->addRoute('GET', '', [$userController, 'getAll']);
+        $r->addRoute('GET', '/{id:\d+}', [$userController, 'read']);
+        $r->addRoute('PUT', '/{id:\d+}', [$userController, 'update']);
+        $r->addRoute('DELETE', '/{id:\d+}', [$userController, 'delete']);
+    });
+
+    $r->addGroup('/cart', function (RouteCollector $r) use ($cartController) {
+        $r->addRoute('GET', '/{cart_id:\d+}', [$cartController, 'getCartItems']);
+        $r->addRoute('GET', '/select/{user_id:\d+}', [$cartController, 'getCart']);
+        $r->addRoute('POST', '', [$cartController, 'create']);
+        $r->addRoute('POST', '/add', [$cartController, 'addToCart']);
+        $r->addRoute('PUT', '/update', [$cartController, 'updateFromCart']);
+        $r->addRoute('DELETE', '/delete/{cart_item_id:\d+}', [$cartController, 'removeFromCart']);
+    });
+
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -73,6 +95,10 @@ switch ($routeInfo[0]) {
         }
 
         $params = array_merge($data, $vars);
+
+        // echo "<pre>";
+        // print_r($params);
+        // echo "</pre>";
 
         call_user_func_array([$controller, $method], [$params]);
         break;
