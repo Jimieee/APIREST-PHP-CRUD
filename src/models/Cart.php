@@ -22,7 +22,7 @@ class Cart
         $stmt->execute(['user_id' => $user_id]);
         return $this->pdo->lastInsertId();
     }
-    
+
     public function getCart($user_id)
     {
         $sql = "SELECT * FROM shopping_carts WHERE user_id = :user_id";
@@ -51,12 +51,12 @@ class Cart
 
     public function UpdateFromCart($cart_item_id, $quantity)
     {
-        
+
         $sql = "UPDATE cart_items SET quantity = :quantity WHERE cart_item_id = :cart_item_id";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['cart_item_id' => $cart_item_id, 'quantity'=> $quantity]);
+        $stmt->execute(['cart_item_id' => $cart_item_id, 'quantity' => $quantity]);
     }
-    
+
     public function removeFromCart($cart_item_id)
     {
         $cart_id = $cart_item_id['cart_item_id'];
@@ -82,5 +82,19 @@ class Cart
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['cart_id' => $id]);
         return $stmt->fetchAll();
+    }
+    public function getCartItemsId($params)
+    {
+        $pantId = $params['pant_id'];
+        $cartId = $params['cart_id'];
+        $sql = "SELECT cart_item_id, quantity 
+                FROM cart_items 
+                WHERE cart_id = :cart_id AND pant_id = :pant_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['pant_id' => $pantId, 'cart_id' => $cartId]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result ? $result : null;
     }
 }

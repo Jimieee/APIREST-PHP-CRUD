@@ -56,6 +56,7 @@ $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) use ($auth
     $r->addGroup('/cart', function (RouteCollector $r) use ($cartController) {
         $r->addRoute('GET', '/{cart_id:\d+}', [$cartController, 'getCartItems']);
         $r->addRoute('GET', '/select/{user_id:\d+}', [$cartController, 'getCart']);
+        $r->addRoute('POST', '/selectItem', [$cartController, 'getCartItemsId']);
         $r->addRoute('POST', '', [$cartController, 'create']);
         $r->addRoute('POST', '/add', [$cartController, 'addToCart']);
         $r->addRoute('PUT', '/update', [$cartController, 'updateFromCart']);

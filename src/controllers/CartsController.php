@@ -28,7 +28,7 @@ class CartsController
         $cart->addToCart($data['cart_id'], $data['pant_id'], $data['quantity']);
         http_response_code(200);
         echo json_encode(["message" => "Item added to cart"]);
-    } 
+    }
 
     public function updateFromCart($data)
     {
@@ -60,5 +60,17 @@ class CartsController
         $results = $cart->getCartItems($cart_id);
         http_response_code(200);
         echo json_encode($results);
+    }
+    public function getCartItemsId($data)
+    {
+        $cart = new Cart();
+        $results = $cart->getCartItemsId($data);
+        if ($results) {
+            http_response_code(200);
+            echo json_encode(["message" => "Item Selected", "cart_id_item" => $results['cart_item_id'], "quantity" => $results['quantity']]);
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "Item not found"]);
+        }
     }
 }
